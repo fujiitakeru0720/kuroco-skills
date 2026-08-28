@@ -2,8 +2,8 @@
 name: kuroco-admin-mcp
 metadata:
   author: Diverta inc.
-  version: "1.7.2"
-  lastUpdated: "2026-08-27"
+  version: "1.7.3"
+  lastUpdated: "2026-08-28"
 description: Kuroco Admin MCP（管理MCPサーバー）の接続設定・認証・ツール利用を支援する。AIエージェントからKurocoの管理操作を行う際の推奨手段で、OAuth 2.0 / CIMD認証、スコープ（mcp:admin / mcp:tools.all / mcp:tools.write / mcp:tools.read）と作業ごとに必要なレベル、whoamiによる実効権限の確認、Claude Code・Claude Web・ChatGPT・Codex CLIからの接続設定、部分更新（patch.カラム名による行単位の書き換え、base_hashによる楽観ロック）をカバー。MCP経由の管理操作、Issuer URLやprotected resource metadataの設定、大きなCSS/JS/テンプレートの一部だけの更新、MCPツールが見えない・権限不足で書き込めない等のトラブルシュートに使用。
 ---
 
@@ -530,6 +530,7 @@ topics の拡張項目のキー名は**サイト設定によって2通りに分�
 | `rcms_api-generate_token` が権限エラー | `rcms_api/update` が要るため `mcp:tools.all` 以上。`privileged_static` はさらに `mcp:admin` が必要 |
 | `kuroco-file:` 参照が解決できない | 15 分の TTL 切れ、または発行者と消費者のユーザー不一致。参照を再発行する |
 | 認可サーバーが情報ページに出ない | 管理者が削除した認可サーバーは自動再作成されない。手動で再作成する |
+| `claude mcp login` が `stdin isn't a terminal` で失敗する | エージェントのサンドボックス化されたシェル（またはそこから `!` で実行した場合も含む）には実際のTTY・ブラウザがないため、OAuth認可コードフローのコールバック待受ができない。**利用者自身のローカル端末（実際のTerminal.app等）で `claude mcp login <name>` を実行してもらう**必要がある。同一マシンであれば `~/.claude.json` を共有するため、認証完了後はエージェント側からも `✔ Connected` になる。ただし**セッション途中で新規認証したMCPサーバーのツールは、そのセッション内には反映されないことがある**（ツール一覧はセッション開始時に読み込まれるため）。反映されない場合はセッションの再起動が必要 |
 | OAuth のクライアント登録が通らない | 認可サーバーで CIMD（クライアント ID メタデータドキュメント）が有効か確認する。CIMD 非対応クライアントは手動クライアント登録が必要（Kuroco は DCR を実装していない）。クライアント別の対応は `../kuroco-docs/docs/reference-mcp-ai.md` の `mcp-client-configuration` を参照 |
 | Codex から接続できない | ① 認可サーバーで CIMD が有効か ② スコープ付き URL（`/x/...`）を指定しているか ③ `~/.codex/config.toml` の `[mcp_servers.<name>.oauth]` に `client_id` が残っていないか（設定済みの client_id が優先され CIMD が使われない）。CIMD を使わない場合は手動クライアント登録が必要（Kuroco は DCR を実装していない） |
 
